@@ -1,0 +1,15 @@
+{% set config_file = salt['pillar.get']('haproxy:config_file_path', '/etc/haproxy/haproxy.cfg') %}
+
+{% set depend_dockers = [] %}
+# TODO: hostname to docker ip
+{% for backend_name, backend in salt['pillar.get']('haproxy:backends', {}).items() %}
+{% for server_name, server in backend.get('servers', {}).items() %}
+{% do depend_dockers.append(server.docker_host) if 'docker_host' in server %}
+{% endfor %}
+{% endfor %}
+
+{% for listener_name, listener in salt['pillar.get']('haproxy:listens', {}).items() %}
+{% for server_name, server in listener.get('servers', {}).items() %}
+{% do depend_dockers.append(server.docker_host) if 'docker_host' in server %}
+{% endfor %}
+{% endfor %}

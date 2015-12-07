@@ -23,8 +23,9 @@
 # Global settings
 #------------------
 global
-    log /dev/log    local0
-    log /dev/log    local1 notice
+{%- for log in salt['pillar.get']('haproxy:global:logs', ['/dev/log  local0', '/dev/log local1 notice'])%}
+    log {{ log }}
+{%- endfor %}
     user {{ salt['pillar.get']('haproxy:global:user', 'haproxy') }}
     group {{ salt['pillar.get']('haproxy:global:group', 'haproxy') }}
 {%- if salt['pillar.get']('haproxy:global:chroot:enable', 'no') == True %}
@@ -308,7 +309,8 @@ listen {{ listener.get('name', listener_name) }}
     {%- endif %}
     {%- if 'servers' in listener %}
       {%- for server_name, server in listener.servers|dictsort %}
-    server {{ server.get('name', server_name) }} {{ server.host }}:{{ server.port }} {{ server.check }} {{ server.get('extra', '') }}
+      {%- set server_host = salt['dockerng.inspect_container'](server.docker_host).NetworkSettings.IPAddress if 'docker_host' in server else server.host %}
+    server {{ server.get('name', server_name) }} {{ server_host }}:{{ server.port }} {{ server.get('check', '') }} {{ server.get('extra', '') }}
       {%- endfor %}
     {%- endif %}
   {% endfor %}
@@ -499,7 +501,8 @@ backend {{ backend.get('name', backend_name) }}
     {%- endif %}
     {%- if 'servers' in backend %}
       {%- for server_name, server in backend.servers|dictsort %}
-    server {{ server.get('name', server_name) }} {{ server.host }}:{{ server.port }} {{ server.check }} {{ server.get('extra', '') }}
+      {%- set server_host = salt['dockerng.inspect_container'](server.docker_host).NetworkSettings.IPAddress if 'docker_host' in server else server.host %}
+    server {{ server.get('name', server_name) }} {{ server_host }}:{{ server.port }} {{ server.get('check', '') }} {{ server.get('extra', '') }}
       {%- endfor %}
     {%- endif %}
   {% endfor %}

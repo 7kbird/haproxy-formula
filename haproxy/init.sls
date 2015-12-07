@@ -11,3 +11,9 @@ include:
   - haproxy.install
   - haproxy.service
   - haproxy.config
+
+extend:
+  haproxy.config:
+    file.managed:
+      - watch_in:
+        - service: haproxy.service
