@@ -42,10 +42,13 @@ haproxy-docker-running_{{ image }}:
       - {{ bind }}
       {% endfor %}
     - require:
-        - cmd: haproxy-docker-image_{{ image }}
-        {% for depend in depend_dockers %}
-        - dockerng: {{ depend }}
-        {% endfor %}
+      - cmd: haproxy-docker-image_{{ image }}
+      {% for depend in depend_dockers %}
+      - dockerng: {{ depend }}
+      {% endfor %}
+    {% if 'watch' in docker %}
+    - watch: {{ docker.watch }}
+    {% endif %}
 include:
   - haproxy.config
 extend:
