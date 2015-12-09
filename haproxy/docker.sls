@@ -36,7 +36,11 @@ haproxy-docker-running_{{ image }}:
       - {{ port }}
       {% endfor %}
     {% endif %}
-    - binds: {{ config_file}}:{{ docker.get('config_file', '/usr/local/etc/haproxy/haproxy.cfg:ro') }}
+    - binds:
+      - {{ config_file}}:{{ docker.get('config_file', '/usr/local/etc/haproxy/haproxy.cfg:ro') }}
+      {% for bind in docker.get('binds', []) %}
+      - {{ bind }}
+      {% endfor %}
     - require:
         - cmd: haproxy-docker-image_{{ image }}
         {% for depend in depend_dockers %}
