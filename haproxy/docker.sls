@@ -8,15 +8,15 @@ haproxy-docker-image_{{ image }}:
 
 {% from 'haproxy/map.jinja' import depend_dockers with context %}
 
-{% set no_ip_docker = [] %}
+{% set no_ip_dockers = [] %}
 {% for depend in depend_dockers %}
-  {% do no_ip_docker.append(depend) if depend not in salt['dockerng.list_containers']() %}
+  {% do no_ip_dockers.append(depend) if depend not in salt['dockerng.list_containers']() %}
 {% endfor %}
 
-{% if no_ip_docker|length > 0 %}
+{% if no_ip_dockers|length > 0 %}
 haproxy-depend-dockers-ip-not-found:
   test.fail_without_changes:
-    - name: 'depend docker of haproxy is not started:[{{ depend_dockers|join(',') }}]'
+    - name: 'depend docker of haproxy is not started:[{{ no_ip_dockers|join(',') }}]'
 
 {% else %}
 {% from 'haproxy/map.jinja' import config_file with context %}
