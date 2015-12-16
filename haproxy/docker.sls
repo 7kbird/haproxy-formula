@@ -47,7 +47,16 @@ haproxy-docker-running_{{ image }}:
       - dockerng: {{ depend }}
       {% endfor %}
     {% if 'watch' in docker %}
-    - watch: {{ docker.watch }}
+    - watch:
+      {% for watch in docker.get('watch', []) %}
+      - {{ watch }}
+      {% endfor %}
+    {% endif %}
+    {% if 'require' in docker %}
+    - require:
+      {% for require in docker.get('require', []) %}
+      - {{ require }}
+      {% endfor %}
     {% endif %}
 include:
   - haproxy.config
