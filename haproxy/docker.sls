@@ -10,7 +10,10 @@ haproxy-docker-image_{{ image }}:
 
 {% set no_ip_dockers = [] %}
 {% for depend in depend_dockers %}
-  {% do no_ip_dockers.append(depend) if depend not in salt['dockerng.list_containers']() %}
+  {% if (depend not in salt['dockerng.list_containers']()) or
+        ( not salt['dockerng.inspect_container'](depend).NetworkSettings.IPAddress) %}
+    {% do no_ip_dockers.append(depend) %}
+  {% endif %}
 {% endfor %}
 
 {% if no_ip_dockers|length > 0 %}
